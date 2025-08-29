@@ -1,0 +1,43 @@
+# Visual Studio 临时文件
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# 编译生成的文件
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+build/
+dist/
+
+# 测试相关
+TestResults/
+
+# NuGet 包缓存
+packages/
+*.nupkg
+!*.nuget.props
+!*.nuget.targets
+
+# 日志文件
+*.log
+
+# 其他临时文件
+*.cache
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
