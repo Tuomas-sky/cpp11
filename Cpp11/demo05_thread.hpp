@@ -605,6 +605,361 @@ private:
 
 };
 
+//5.5.1 普通函数版本 Thread Pool
+#if 0
+//5.5 ThreadPool
+//任务的入口函数
+class XTask {
+public:
+	virtual int  Run() = 0;
+	std::function<bool()> is_exit = nullptr;
+};
+
+class XThreadPool {
+public:
+	//初始化线程池的线程数量
+	void Init(int num) {
+		unique_lock<mutex> lock(mtx_);
+		this->thread_num_ = num;
+		cout << "ThreadPool Init " << num << endl;
+	}
+	//启动所有线程，需要先Init
+	void Start() {
+		unique_lock<mutex> lock(mtx_);
+		if (thread_num_ <= 0) {
+			cerr << "Please Init XThreadPool" << endl;
+		}
+		if (!threads_.empty()) {
+			cerr << "Thread pool has start!" << endl;
+		}
+		//start thread
+		for (int i = 0; i < thread_num_; i++)
+		{
+			auto th = new thread(&XThreadPool::Run, this);
+			threads_.push_back(th);
+		}
+
+
+	}
+
+	//添加任务
+	void AddTask(XTask* task) {
+		unique_lock<mutex> lock(mtx_);
+		tasks_.push_back(task);
+		task->is_exit = [this] {return is_exit();};
+
+		lock.unlock();
+		cv_.notify_one();
+	}
+
+	//获取任务
+	XTask* getTask() {
+		unique_lock<mutex> lock(mtx_);
+		if (tasks_.empty()) {
+			cv_.wait(lock);
+		}
+		if (is_exit()) {
+			return nullptr;//没有task了
+		}
+		if (tasks_.empty()) {
+			return nullptr;//防止多次通知
+		}
+		auto task = tasks_.front();
+		tasks_.pop_front();
+		return task;
+	}
+
+	//线程池退出
+	void Stop() {
+		is_exit_ = true;
+		cv_.notify_all();
+		for (auto& th : threads_)
+			th->join();
+		//clear thread
+		unique_lock<mutex> lock(mtx_);
+		threads_.clear();
+	}
+
+	bool is_exit() { return is_exit_; }
+
+	int task_run_count() { return task_run_count_; }
+
+private:
+	//线程池线程的入口函数
+	void Run() {
+		cout << "begin ThreadPool Run " << this_thread::get_id() << endl;
+		while (!is_exit()) {
+			auto task = getTask();
+			if (!task) continue;
+			++task_run_count_;
+			try
+			{
+				task->Run();
+			}
+			catch (const std::exception&)
+			{
+				cerr << "exception" << endl;
+			}
+			--task_run_count_;
+		}
+
+		cout << "end ThreadPool Run " << this_thread::get_id() << endl;
+	}
+
+	int thread_num_ = 0;
+	mutex mtx_;
+	vector<std::thread*> threads_;//存放线程
+	list<XTask*> tasks_;//任务列表
+	condition_variable cv_;//消息通知
+	bool is_exit_ = false;//线程池退出
+	//正在运行的任务数量,线程安全
+	std::atomic<int> task_run_count_ = { 0 };
+};
+#endif 
+
+//5.5.2 智能指针版本 Thread Pool
+#if 0
+//5.5 ThreadPool
+//任务的入口函数
+class XTask {
+public:
+	virtual int  Run() = 0;
+	std::function<bool()> is_exit = nullptr;
+};
+
+class XThreadPool {
+public:
+	//初始化线程池的线程数量
+	void Init(int num) {
+		unique_lock<mutex> lock(mtx_);
+		this->thread_num_ = num;
+		cout << "ThreadPool Init " << num << endl;
+	}
+	//启动所有线程，需要先Init
+	void Start() {
+		unique_lock<mutex> lock(mtx_);
+		if (thread_num_ <= 0) {
+			cerr << "Please Init XThreadPool" << endl;
+		}
+		if (!threads_.empty()) {
+			cerr << "Thread pool has start!" << endl;
+		}
+		//start thread
+		for (int i = 0; i < thread_num_; i++)
+		{
+			//auto th = new thread(&XThreadPool::Run, this);
+			//智能指针
+			auto th = make_shared<std::thread>(&XThreadPool::Run, this);
+			threads_.push_back(th);
+		}
+
+
+	}
+
+	//添加任务
+	void AddTask(std::shared_ptr<XTask> task) {
+		unique_lock<mutex> lock(mtx_);
+		tasks_.push_back(task);
+		task->is_exit = [this] {return is_exit();};
+
+		lock.unlock();
+		cv_.notify_one();
+	}
+
+	//获取任务
+	std::shared_ptr<XTask> getTask() {
+		unique_lock<mutex> lock(mtx_);
+		if (tasks_.empty()) {
+			cv_.wait(lock);
+		}
+		if (is_exit()) {
+			return nullptr;//没有task了
+		}
+		if (tasks_.empty()) {
+			return nullptr;//防止多次通知
+		}
+		auto task = tasks_.front();
+		tasks_.pop_front();
+		return task;
+	}
+
+	//线程池退出
+	void Stop() {
+		is_exit_ = true;
+		cv_.notify_all();
+		for (auto& th : threads_)
+			th->join();
+		//clear thread
+		unique_lock<mutex> lock(mtx_);
+		threads_.clear();
+	}
+
+	bool is_exit() { return is_exit_; }
+
+	int task_run_count() { return task_run_count_; }
+
+private:
+	//线程池线程的入口函数
+	void Run() {
+		cout << "begin ThreadPool Run " << this_thread::get_id() << endl;
+		while (!is_exit()) {
+			auto task = getTask();
+			if (!task) continue;
+			++task_run_count_;
+			try
+			{
+				task->Run();
+			}
+			catch (const std::exception&)
+			{
+				cerr << "exception" << endl;
+			}
+			--task_run_count_;
+		}
+
+		cout << "end ThreadPool Run " << this_thread::get_id() << endl;
+	}
+
+	int thread_num_ = 0;
+	mutex mtx_;
+	//智能指针版本
+	vector<std::shared_ptr<std::thread>> threads_;//存放线程
+	list<std::shared_ptr<XTask>> tasks_;//任务列表
+	condition_variable cv_;//消息通知
+	bool is_exit_ = false;//线程池退出
+	//正在运行的任务数量,线程安全
+	std::atomic<int> task_run_count_ = { 0 };
+};
+#endif 
+
+//5.5.3 异步获取任务
+#if 1
+//5.5 ThreadPool
+//任务的入口函数
+class XTask {
+public:
+	virtual int  Run() = 0;
+	std::function<bool()> is_exit = nullptr;
+	void SetValue(int v) {
+		p_.set_value(v);
+	}
+	auto GetReturn() {
+		//阻塞等待set_value,只能调用一次
+		return p_.get_future().get();
+	}
+
+private:
+	//用来接收Run()的返回值
+	promise<int> p_;
+};
+
+class XThreadPool {
+public:
+	//初始化线程池的线程数量
+	void Init(int num) {
+		unique_lock<mutex> lock(mtx_);
+		this->thread_num_ = num;
+		cout << "ThreadPool Init " << num << endl;
+	}
+	//启动所有线程，需要先Init
+	void Start() {
+		unique_lock<mutex> lock(mtx_);
+		if (thread_num_ <= 0) {
+			cerr << "Please Init XThreadPool" << endl;
+		}
+		if (!threads_.empty()) {
+			cerr << "Thread pool has start!" << endl;
+		}
+		//start thread
+		for (int i = 0; i < thread_num_; i++)
+		{
+			//auto th = new thread(&XThreadPool::Run, this);
+			//智能指针
+			auto th = make_shared<std::thread>(&XThreadPool::Run, this);
+			threads_.push_back(th);
+		}
+
+
+	}
+
+	//添加任务
+	void AddTask(std::shared_ptr<XTask> task) {
+		unique_lock<mutex> lock(mtx_);
+		tasks_.push_back(task);
+		task->is_exit = [this] {return is_exit();};
+
+		lock.unlock();
+		cv_.notify_one();
+	}
+
+	//获取任务
+	std::shared_ptr<XTask> getTask() {
+		unique_lock<mutex> lock(mtx_);
+		if (tasks_.empty()) {
+			cv_.wait(lock);
+		}
+		if (is_exit()) {
+			return nullptr;//没有task了
+		}
+		if (tasks_.empty()) {
+			return nullptr;//防止多次通知
+		}
+		auto task = tasks_.front();
+		tasks_.pop_front();
+		return task;
+	}
+
+	//线程池退出
+	void Stop() {
+		is_exit_ = true;
+		cv_.notify_all();
+		for (auto& th : threads_)
+			th->join();
+		//clear thread
+		unique_lock<mutex> lock(mtx_);
+		threads_.clear();
+	}
+
+	bool is_exit() { return is_exit_; }
+
+	int task_run_count() { return task_run_count_; }
+
+private:
+	//线程池线程的入口函数
+	void Run() {
+		cout << "begin ThreadPool Run " << this_thread::get_id() << endl;
+		while (!is_exit()) {
+			auto task = getTask();
+			if (!task) continue;
+			++task_run_count_;
+			try
+			{
+				//设置值
+				auto re = task->Run();
+				task->SetValue(re);
+			}
+			catch (const std::exception&)
+			{
+				cerr << "exception" << endl;
+			}
+			--task_run_count_;
+		}
+
+		cout << "end ThreadPool Run " << this_thread::get_id() << endl;
+	}
+
+	int thread_num_ = 0;
+	mutex mtx_;
+	//智能指针版本
+	vector<std::shared_ptr<std::thread>> threads_;//存放线程
+	list<std::shared_ptr<XTask>> tasks_;//任务列表
+	condition_variable cv_;//消息通知
+	bool is_exit_ = false;//线程池退出
+	//正在运行的任务数量,线程安全
+	std::atomic<int> task_run_count_ = { 0 };
+};
+#endif 
+
 #endif // 1
 
 
