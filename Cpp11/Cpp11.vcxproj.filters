@@ -44,5 +44,8 @@
     <ClInclude Include="demo09_designModel.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="demo10_log.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

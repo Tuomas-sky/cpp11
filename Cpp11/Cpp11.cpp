@@ -3,11 +3,13 @@
 //#include "demo02.h"
 //#include"demo03.hpp"
 //#include "demo04_stl.hpp"
-#include "demo05_thread.hpp"
+//#include "demo05_thread.hpp"
 //#include"demo07_NetProgram.hpp"
 //#include "demo08_callback.hpp"
 //#include "demo09_designModel.hpp"
+#include"demo10_log.hpp"
 
+using namespace utility;
 using namespace std;
 //
 //union Ending {
@@ -25,6 +27,21 @@ using namespace std;
 int main()
 {
   
+#if 1
+    Logger::getInstance()->Open("./test.log");
+    
+    //Logger::getInstance()->Log(Logger::DEBUG, __FILE__, __LINE__, "hello world");
+    //Logger::getInstance()->Log(Logger::DEBUG, __FILE__, __LINE__, "name is %s,age is %d","tom",20);
+    Logger::getInstance()->max_len(400);
+    Logger::getInstance()->level(Logger::DEBUG);
+    debug("debug write log");
+    info("info write log");
+    warn("warn write log");
+    error("error write log");
+    fatal("fatal write log");
+
+#endif // 1
+
 
 #if 0   
     //TaskQueue* task = TaskQueue::getInstance();
@@ -225,7 +242,7 @@ int main()
 #endif 
 
     //thread_v2
-#if 1
+#if 0
     //5.1 一次调用
     //cout << "main thread begin,id=" << this_thread::get_id() << endl;
     //{
@@ -265,72 +282,73 @@ int main()
     //}
     //getchar();
 
-////5.4 使用条件变量 test 互斥锁+list实现模拟线程通信
-//    MsgServer_V2 server;
-//    server.Start();
-//    for (int i = 0; i < 3; i++)
-//    {
-//        stringstream ss;
-//        ss << "MSG " << i + 1;
-//        server.SendMsg(ss.str());
-//        this_thread::sleep_for(500ms);
-//    }
-//    Sleep(2000);
-//    server.Stop();
-//    cout << "Thread Stop\n";
+    ////5.4 使用条件变量 test 互斥锁+list实现模拟线程通信
+    //    MsgServer_V2 server;
+    //    server.Start();
+    //    for (int i = 0; i < 3; i++)
+    //    {
+    //        stringstream ss;
+    //        ss << "MSG " << i + 1;
+    //        server.SendMsg(ss.str());
+    //        this_thread::sleep_for(500ms);
+    //    }
+    //    Sleep(2000);
+    //    server.Stop();
+    //    cout << "Thread Stop\n";
 
+    ////5.5 线程池
+    //class MyTask :public XTask {
+    //public:
+    //    int Run() {
+    //        std::cout << "==============================\n";
+    //        cout <<this_thread::get_id()<< " MyTask " << name << endl;
+    //        std::cout << "==============================\n";
+    //        for (size_t i = 0; i < 10; i++)
+    //        {
+    //            if (is_exit()) break;//通过函数指针检测是否退出
+    //            cout << "." << flush;
+    //            this_thread::sleep_for(500ms);
+    //        }
+    //
+    //        return 10;
+    //    }
+    //    string name = "";
+    //};
+    ////①创建线程池
+    //XThreadPool pool;
+    //pool.Init(4);
+    ////②启动线程
+    //pool.Start();
+    ////③添加任务
+    ////MyTask task1;
+    ////task1.name = "Test name 001";
+    ////pool.AddTask(&task1);
+    ////MyTask task2;
+    ////task1.name = "Test name 002";
+    ////pool.AddTask(&task2);
+    ////this_thread::sleep_for(100ms);
+    //
+    ////智能指针
+    //{
+    //    auto task3 = make_shared<MyTask>();
+    //    task3->name = "Test name 003";
+    //    pool.AddTask(task3);
+    //    auto task4 = make_shared<MyTask>();
+    //    task4->name = "Test name 004";
+    //    pool.AddTask(task4);
+    //    cout <<"task4->GetReturn()="<< task4->GetReturn() << endl;
+    //}
+    //
+    //cout << "task run count= " << pool.task_run_count() << endl;
+    //
+    ////④1s后线程退出
+    //this_thread::sleep_for(1s);
+    //pool.Stop();
+    //cout << "task run count= " << pool.task_run_count() << endl;
+    //
+    //getchar();
 
-//5.5 线程池
-class MyTask :public XTask {
-public:
-    int Run() {
-        std::cout << "==============================\n";
-        cout <<this_thread::get_id()<< " MyTask " << name << endl;
-        std::cout << "==============================\n";
-        for (size_t i = 0; i < 10; i++)
-        {
-            if (is_exit()) break;//通过函数指针检测是否退出
-            cout << "." << flush;
-            this_thread::sleep_for(500ms);
-        }
-
-        return 10;
-    }
-    string name = "";
-};
-//①创建线程池
-XThreadPool pool;
-pool.Init(4);
-//②启动线程
-pool.Start();
-//③添加任务
-//MyTask task1;
-//task1.name = "Test name 001";
-//pool.AddTask(&task1);
-//MyTask task2;
-//task1.name = "Test name 002";
-//pool.AddTask(&task2);
-//this_thread::sleep_for(100ms);
-
-//智能指针
-{
-    auto task3 = make_shared<MyTask>();
-    task3->name = "Test name 003";
-    pool.AddTask(task3);
-    auto task4 = make_shared<MyTask>();
-    task4->name = "Test name 004";
-    pool.AddTask(task4);
-    cout <<"task4->GetReturn()="<< task4->GetReturn() << endl;
-}
-
-cout << "task run count= " << pool.task_run_count() << endl;
-
-//④1s后线程退出
-this_thread::sleep_for(1s);
-pool.Stop();
-cout << "task run count= " << pool.task_run_count() << endl;
-
-getchar();
+    
 
 #endif // 1
 

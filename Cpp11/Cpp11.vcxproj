@@ -139,6 +139,7 @@
     <ClInclude Include="demo07_NetProgram.hpp" />
     <ClInclude Include="demo08_callback.hpp" />
     <ClInclude Include="demo09_designModel.hpp" />
+    <ClInclude Include="demo10_log.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
