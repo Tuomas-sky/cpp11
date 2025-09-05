@@ -3,11 +3,11 @@
 #include <vector>
 #include<iostream>
 #include <string>
-
+using namespace std;
 //file operate
 void writefile() {
     //open
-    fstream fs("text.txt", ios::out);
+    std::fstream fs("text.txt", ios::out);
     if (!fs.is_open()) {
         cout << "fiile open failed!" << endl;
     }

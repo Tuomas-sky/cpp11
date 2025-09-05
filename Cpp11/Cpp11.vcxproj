@@ -131,8 +131,8 @@
     <ClCompile Include="Cpp11.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="demo01.h" />
-    <ClInclude Include="demo02.h" />
+    <ClInclude Include="demo01_base.h" />
+    <ClInclude Include="demo02_read_write_file.h" />
     <ClInclude Include="demo03_template.hpp" />
     <ClInclude Include="demo04_stl.hpp" />
     <ClInclude Include="demo05_thread.hpp" />
@@ -140,6 +140,7 @@
     <ClInclude Include="demo08_callback.hpp" />
     <ClInclude Include="demo09_designModel.hpp" />
     <ClInclude Include="demo10_log.hpp" />
+    <ClInclude Include="demo11_new_feature_of_cpp11.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

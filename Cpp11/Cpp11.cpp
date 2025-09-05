@@ -1,23 +1,22 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS 
-//#include "demo01.h"
-//#include "demo02.h"
+//#include "demo01_base.h"
+//#include "demo02_read_write_file.h"
 //#include"demo03.hpp"
 //#include "demo04_stl.hpp"
 //#include "demo05_thread.hpp"
 //#include"demo07_NetProgram.hpp"
 //#include "demo08_callback.hpp"
 //#include "demo09_designModel.hpp"
-#include"demo10_log.hpp"
+//#include"demo10_log.hpp"
+//using namespace utility;
 
-using namespace utility;
+#include "demo11_new_feature_of_cpp11.hpp"
 using namespace std;
 //
 //union Ending {
 //    uint32_t i;
 //    uint8_t c[4];
 //}test;
-
-
 //#include <iostream>//引入标准输入输出流库
 //#include <string>//引入字符串库
 //#include<winsock2.h>// 引入Winsock2库，用于网络编程
@@ -27,12 +26,62 @@ using namespace std;
 int main()
 {
   
+	//new feature of cpp11
 #if 1
+	////1、function
+	////普通函数
+	//std::function<void(int, int)> func1 = testFunc;
+	//func1(10, 20);
+	////Lambda表达式
+	//std::function<void(int, int)> func2 = lam;
+	//func2(10, 20);
+	////仿函数
+	//std::function<void(int, int)> func3 = Functor();
+	//func3(10, 20);
+	////类的静态成员函数
+	//std::function<void(int, int)>func4 = TestClass::staticFunc;
+	//func4(10, 20);
+	////类的成员函数
+	//TestClass obj;
+	//std::function<void(int, int)> func5 = std::bind(&TestClass::memberFunc, &obj, std::placeholders::_1, std::placeholders::_2);
+	//func5(10, 20);
+
+	////2、bind
+	////绑定普通函数
+	//std::function<void(int,int)> f1 = std::bind(&testFunc, placeholders::_1, placeholders::_2);
+	//f1(100, 200);
+	////绑定lambda表达式
+	//auto lambda = std::bind(lam, placeholders::_1, placeholders::_2);
+	//lambda(100, 200);
+	////绑定仿函数
+	//Functor functor;
+	//auto f2 = std::bind(functor, placeholders::_1, placeholders::_2);
+	//f2(100, 200);
+	////绑定类的静态成员函数
+	//TestClass tc;
+ //   auto f3 = std::bind(&TestClass::staticFunc, 100,std::placeholders::_1);
+	//f3(200);
+	////绑定类的成员函数
+ //   auto f4 = std::bind(&TestClass::memberFunc, &tc, std::placeholders::_1, std::placeholders::_2);
+ //   f4(100,200);
+	////绑定模板函数
+	//auto f5 = std::bind(&TestBindFunc<string>, std::placeholders::_1, std::placeholders::_2);
+	//f5("hello", " world");
+
+	//3、Lambda表达式
+	testLambda();
+
+
+#endif 
+
+
+    //Logger
+#if 0
     Logger::getInstance()->Open("./test.log");
     
     //Logger::getInstance()->Log(Logger::DEBUG, __FILE__, __LINE__, "hello world");
     //Logger::getInstance()->Log(Logger::DEBUG, __FILE__, __LINE__, "name is %s,age is %d","tom",20);
-    Logger::getInstance()->max_len(400);
+    Logger::getInstance()->max_len(1024);
     Logger::getInstance()->level(Logger::DEBUG);
     debug("debug write log");
     info("info write log");
@@ -40,7 +89,7 @@ int main()
     error("error write log");
     fatal("fatal write log");
 
-#endif // 1
+#endif 
 
 
 #if 0   
@@ -95,7 +144,6 @@ int main()
 
 
 #endif
-
 
     //net
 #if 0
@@ -179,9 +227,6 @@ int main()
 
     //thread_v1
 #if 0
-
-
-
 
    // //future
    //future<int> f= async(add_async, 10, 20);
@@ -350,8 +395,7 @@ int main()
 
     
 
-#endif // 1
-
+#endif 
 
 //stl
 #if 0
@@ -368,7 +412,7 @@ int main()
     //adapter();
 
 
-#endif // 1
+#endif
 
 #if 0
    //demo03.hpp--template

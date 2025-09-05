@@ -20,10 +20,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="demo01.h">
+    <ClInclude Include="demo01_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="demo02.h">
+    <ClInclude Include="demo02_read_write_file.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="demo03_template.hpp">
@@ -45,6 +45,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="demo10_log.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="demo11_new_feature_of_cpp11.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
