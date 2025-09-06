@@ -88,4 +88,92 @@ void testLambda()
 	cout << "after f7() x=" << x << ",y=" << y << endl;
 }
 
+//4、智能指针
+// 4.1 shared_ptr<>:
+// 多个shared_ptr可以指向同一个对象，使用引用计数的方式来管理资源，当最后一个shared_ptr被销毁时，资源才会被释放
+//最安全的分配和使用动态内存的方法是使用make_shared函数，该函数会在动态内存中分配对象，并返回一个shared_ptr指向该对象
+//可以使用new返回的指针来初始化shared_ptr，由于智能指针的构造函数是explicit类型的，因此必须显示的进行转换，不能隐式转换
+//shared_ptr<int> p0 = new int(10); //错误
+// shared_ptr<int> p1(new int(10)); //正确
+//使用案例
+class Test_SharedPtr
+{
+public:
+	Test_SharedPtr() {
+		cout << "Test_SharedPtr()" << endl;
+	}
+	~Test_SharedPtr() {
+		cout << "~Test_SharedPtr()" << endl;
+	}
+};
+
+// 4.2 weak_ptr<>:
+//shared_ptr最大的问题是会引起循环引用，会导致堆内存无法释放，导致内存泄漏。
+//循环引用案例
+class Parent;
+class Child {
+	public:
+	Child() {
+		cout << "Child()" << endl;
+	}
+	~Child() {
+		cout << "~Child()" << endl;
+	}
+	std::shared_ptr<Parent> parent;
+};
+class Parent {
+	public:
+	Parent() {
+		cout << "Parent()" << endl;
+	}
+	~Parent() {
+		cout << "~Parent()" << endl;
+	}
+	std::shared_ptr<Child> child;
+};
+//weak_ptr如何解决循环引用问题？
+//weak_ptr是一个弱引用的智能指针，只有观测权，不控制所指对象的生命周期，不会影响引用计数，不能直接访问所指对象，
+// 必须通过lock()函数转换为shared_ptr才能访问
+//weak_ptr的创建：
+//①通过shared_ptr创建 : auto p = make_shared<int>(100); weak_ptr<int> wp(p);
+//②通过weak_ptr创建: weak_ptr<int> wp1(wp);
+//③通过赋值操作创建 : weak_ptr<int> wp2 = wp1;
+class Parent_Weak;
+class Child_Weak {
+public:
+	Child_Weak() {
+		cout << "Child_Weak()" << endl;
+	}
+	~Child_Weak() {
+		cout << "~Child_Weak()" << endl;
+	}
+	void testWork() {
+		cout << "testWork()" << endl;
+	}
+
+	std::weak_ptr<Parent_Weak> parent_;
+};
+class Parent_Weak {
+	public:
+	Parent_Weak() {
+		cout << "Parent_Weak()" << endl;
+	}
+	~Parent_Weak() {
+		cout << "~Parent_Weak()" << endl;
+	}
+	std::weak_ptr<Child_Weak> child_;
+};
+
+//4.3 unique_ptr
+//独占式智能指针，不允许其他的智能指针共享其内部的指针，更像原生指针，不可以拷贝和赋值，可以移动
+//虽然不能拷贝或赋值，但是可通过调用release 或 reset将指针的所有权从一个（非const）unique_ptr转移给另一个unique_ptr
+
+//传递unique_ptr参数和返回unique_ptr
+//不能拷贝 unique_ptr 的规则有一个例外：我们可以拷贝或赋值一个将要被销毁的 unique_ptr。最常见的例子是从函数返回一个unique_ptr：
+unique_ptr<string> CreateString()
+{
+	unique_ptr<string> p(new string("hello unique_ptr"));
+	return p; //返回时会调用移动构造函数
+}
+
 

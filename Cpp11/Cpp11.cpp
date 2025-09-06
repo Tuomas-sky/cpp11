@@ -69,7 +69,55 @@ int main()
 	//f5("hello", " world");
 
 	//3、Lambda表达式
-	testLambda();
+	//testLambda();
+
+	//4.1、智能指针 shred_ptr 
+    shared_ptr<Test_SharedPtr> sp1 = make_shared<Test_SharedPtr>(); //make_shared<T>(args)
+	cout << "1 sp1 use_count=" << sp1.use_count() << endl;
+    {
+        shared_ptr<Test_SharedPtr> sp2 = sp1;//引用计数+1
+        cout << "2 sp1 use_count=" << sp1.use_count() << endl;
+	}//sp2出作用域，引用计数-1
+	cout << "3 sp1 use_count=" << sp1.use_count() << endl;
+    cout << "-------------------------------------------\n";
+	//4.2 、智能指针 weak_ptr
+	////循环引用问题
+	//shared_ptr<Parent> parent = make_shared<Parent>(); //parent.use_count=1
+	//shared_ptr<Child> child = make_shared<Child>();  //child.use_count=1
+	//parent->child = child;  //parent.use_count=1 ,child.use_count=2
+	//child->parent = parent; //parent.use_count=2 ,child.use_count=2
+
+	//解决循环引用问题
+    shared_ptr<Parent_Weak> parent = make_shared<Parent_Weak>(); //parent.use_count=1
+    shared_ptr<Child_Weak> child = make_shared<Child_Weak>();  //child.use_count=1
+	parent->child_ = child;   //parent.use_count=1 ,child.use_count=1
+	child->parent_ = parent;  //parent.use_count=1 ,child.use_count=1
+	cout << "parent use_count=" << parent.use_count() << ",child use_count=" << child.use_count() << endl;
+
+	//把weak_ptr转换为shared_ptr
+    shared_ptr<Child_Weak>tmp = parent.get()->child_.lock();
+    tmp->testWork();
+	cout << "tmp_ref_count=" << tmp.use_count() << endl;  //tmp_ref_count=2
+
+    cout << "-------------------------------------------\n";
+	//4.3、智能指针 unique_ptr
+    unique_ptr<int> up1(new int(10));
+	cout << "*up1=" << *up1 << endl;
+    //使用案例
+    unique_ptr<string> p1(new string("test unique_ptr"));
+    unique_ptr<string> p2 = move(p1); //将p1的所有权转移给p2，p1变为空
+    //unique_ptr<string> p3 = p1; //错误，不能拷贝
+    unique_ptr<string> p4(p2.release()); //将p2的所有权转移给p4，p2变为空
+	cout << "*p4=" << *p4 << endl;
+
+    //调用 release 会切断unique_ptr和它原来管理的对象间的联系，如果我们不用另一个智能指针来保存 release 返回的指针，
+// 我们的程序就要负责资源的释放：
+	unique_ptr<string> p5(new string("hello unique_ptr"));
+   // p5.release(); // 错误：p2不会释放内存，而且我们丢失了指针
+    auto p = p5.release(); // 正确，但我们必须记得 delete(p)
+    delete(p);
+    cout << "-------------------------------------------\n";
+
 
 
 #endif 
