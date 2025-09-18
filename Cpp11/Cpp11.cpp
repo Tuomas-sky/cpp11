@@ -11,6 +11,9 @@
 //using namespace utility;
 
 #include "demo11_new_feature_of_cpp11.hpp"
+#include"create_dll.h"
+#include<iostream>
+
 using namespace std;
 //
 //union Ending {
@@ -26,6 +29,37 @@ using namespace std;
 int main()
 {
   
+	//test_dll.h
+#if 0
+    // 使用导出的普通函数
+    int sum = add(10, 20);
+    std::cout << "10 + 20 = " << sum << std::endl;
+
+    const char* version = GetDllVersion();
+    std::cout << "DLL Version: " << version << std::endl;
+
+    // 使用导出的类
+    MyMath math(2);  // 创建类实例，因子为2
+    double result = math.multiply(5,4);
+    std::cout << "5 *4* 2 = " << result << std::endl;
+
+    result = math.divide(10, 2);
+    std::cout << "(10 / 2) * 2 = " << result << std::endl;
+
+    result = MyMath::square(4);  // 调用静态成员函数
+    std::cout << "4^2 = " << result << std::endl;
+
+    // 测试MyStringUtil类
+    MyStringUtil strObj("Hello DLL");
+    std::cout << "字符串长度: " << strObj.GetLength() << std::endl;
+    std::cout << "字符串内容: " << strObj.GetString() << std::endl;
+
+    strObj.SetString("Updated String");
+    std::cout << "更新后字符串: " << strObj.GetString() << std::endl;
+
+
+#endif 
+
 	//new feature of cpp11
 #if 1
 	////1、function
@@ -118,10 +152,91 @@ int main()
     delete(p);
     cout << "-------------------------------------------\n";
 
+	//6.1、 static_cast
+	//①基本类型转换
+	float fval = 3.14f;
+	int ival = static_cast<int>(fval);
+	cout << "ival=" << ival << endl;
+	//②有类型指针与void*指针之间的转换
+	int* pInt = &ival;
+	void* pVoid = static_cast<void*>(pInt);
+	int* pInt2 = static_cast<int*>(pVoid);
+	cout << "*pInt2=" << *pInt2 << endl;
+	//③有类型指针与基类或派生类指针之间的转换
+    CDerived* pDerived1 = nullptr;
+	CBase* pBase1 = static_cast<CBase*>(pDerived1); //派生类指针转换为基类指针
+    //CBase* pBase2 = nullptr;
+	//CDerived* pDerived2 = static_cast<CDerived*>(pBase2); //错误，基类指针转换为派生类指针
+    cout << "-------------------------------------------\n";
+	//6.2、 dynamic_cast
+	DynamicBase* p_Base = new DynamicBase();
+	DynamicDerived* pDerived = dynamic_cast<DynamicDerived*>(p_Base);
+	DynamicBase Base;
+	//DynamicBase& r_Base = Base;
+	//DynamicDerived& r_Derived = dynamic_cast<DynamicDerived&>(r_Base);
+
+	//6.3、 const_cast
+    int val = 100;
+	const int* pval = &val;
+	//*pval = 200; //错误，不能通过const指针修改值
+	int* pval2 = const_cast<int*>(pval);
+	*pval2 = 200; //正确，通过const_cast转换为非常量指针，可以修改值
+	int& refVal = val;
+	const int& refConstVal = refVal;
+	//常量引用转换为非常量引用
+	int& refVal2 = const_cast<int&>(refConstVal);
+	refVal2 = 300;
+	cout << "val=" << val << endl;
+	//非常量引用转换为常量引用
+	const int& refConstVal2 = const_cast<const int&>(refVal);
+	cout << "refConstVal2=" << refConstVal2 << endl;
+    cout << "-------------------------------------------\n";
+	//6.4、 reinterpret_cast
+    int value = 100;
+	double* pd = reinterpret_cast<double*>(&value);
+	cout << "*pd=" << *pd << endl;
+	//将指针转换为整数类型
+	int* ptr = &value;
+	int pvaddr = reinterpret_cast<int>(ptr);
+	cout << "pvaddr=" <<hex<< pvaddr << endl;
+    cout << "ptr=" << ptr << endl;
+    cout << "-------------------------------------------\n";
+	//7、类内存对齐与填充
+	//7.1、C++中的类所占内存大小
+	//c++要求每个实例在内存中都有独一无二的地址，因此每个类至少占用1个字节，记得内存对齐的问题
+	//C++类中有虚函数的时候，会增加一个指向虚函数表的指针，32位系统占4字节，64位系统占8字节，无论有多少个虚函数，类中只会有一个指向虚函数表的指针；
+    class Father {
+        public:
+        virtual void func1() {}
+        int a;      //4字节
+        char b;     //1字节
+        //3字节填充
+		double c;   //8字节
+    };
+    class Son:public Father {
+        public:
+        char d;     //1字节
+        //7字节填充
+        int e;      //4字节
+        short f;    //2字节
+        //2字节填充
+	};
+    class Son2 :public Father {
+    public:
+		int e;      //4字节
+    };
+	cout << "sizeof(Father)=" << sizeof(Father) << endl; //18字节
+	cout << "sizeof(Son)=" << sizeof(Son) << endl;       //28字节
+	cout << "sizeof(Son2)=" << sizeof(Son2) << endl;     //20字节
+
+
+
+
+    cout << "-------------------------------------------\n";
+
 
 
 #endif 
-
 
     //Logger
 #if 0
